@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWD Assistant - Services Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --primary-dark: #1e293b;
+            --bg-light: #ffffff;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --primary-blue-light: #dbeafe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--primary-dark);
+            background-color: #f8fafc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--bg-light);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--primary-dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-blue);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* User Dropdown Styles */
+        #loginBtn {
+            list-style: none;
+        }
+
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .user-dropdown > span {
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: var(--bg-light);
+            min-width: 180px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 1001;
+            border: 1px solid var(--border-light);
+            top: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .user-dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: var(--primary-dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--border-light);
+            color: var(--primary-blue);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Main Content */
+        main {
+            margin-top: 80px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: var(--bg-light);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form Styles */
+        .planner-form {
+            max-width: 800px;
+            margin: 0 auto 50px auto;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .form-control {
+            padding: 12px 15px;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .search-button-container {
+            text-align: center;
+        }
+
+        /* Results Section */
+        #planResult {
+            margin-top: 50px;
+            display: none;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .result-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .resource-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .resource-item {
+            border-left: 5px solid var(--primary-blue);
+        }
+
+        .resource-item h3 {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .resource-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .meta-tag {
+            background-color: var(--primary-blue-light);
+            color: var(--primary-dark);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        /* Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary-dark);
+            color: var(--bg-light);
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Chatbot Styles */
+        #open-chatbot-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        #open-chatbot-btn:hover {
+            background: #1d4ed8;
+            transform: scale(1.1);
+        }
+
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .chatbot-container.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #close-chatbot-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .bot-message {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 5px;
+            align-self: flex-start;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+            align-self: flex-end;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-input input:focus {
+            border-color: #007bff;
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        .quick-action-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #495057;
+        }
+
+        .quick-action-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .chatbot-container {
+                width: 90vw;
+                height: 70vh;
+                right: 5vw;
+                bottom: 80px;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="container">
+        <a href="/" class="logo">
+            <i class="fas fa-wheelchair-move"></i>
+            PWD Assistant
+        </a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/home" class="active">Home</a></li>
+                <li><a href="/services">Services Hub</a></li>
+                <li><a href="/resources">Resources</a></li>
+                <li><a href="/community">Community</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if user %}
+            <a href="/" class="btn btn-secondary" style="margin-right: 10px;">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <div class="user-dropdown">
+                <span>👤 {{ user.fullname if user.fullname else user.username }}</span>
+                <div class="dropdown-content">
+                    <a href="/profile"><i class="fas fa-user-circle"></i> Profile</a>
+                    <a href="/home"><i class="fas fa-home"></i> Dashboard</a>
+                    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/" class="btn btn-secondary" style="margin-right: 10px;">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="/login" class="btn btn-secondary">Login/Signup</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+    <main>
+        <section class="page-header">
+            <h1>Centralized Services Hub</h1>
+            <p>Discover comprehensive PwD schemes, benefits, and support services</p>
+        </section>
+
+        <div class="container">
+            <div class="planner-form card">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="domain">Select Information Category</label>
+                        <select id="domain" class="form-control">
+                            <option value="">-- Choose Category --</option>
+                            <option value="employment">Employment Reservations</option>
+                            <option value="education">Education Benefits</option>
+                            <option value="healthcare">Healthcare Schemes</option>
+                            <option value="financial">Financial Assistance</option>
+                            <option value="certification">Disability Certification</option>
+                            <option value="legal">Legal Rights Protections</option>
+                            <option value="travel">Travel Concessions</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="search-button-container">
+                    <button class="btn btn-primary" onclick="searchResources()">
+                        <i class="fas fa-search"></i> Explore Benefits
+                    </button>
+                </div>
+            </div>
+
+            <div id="planResult"></div>
+        </div>
+    </main>
+
+    <!-- Chatbot Button and Container -->
+    <button id="open-chatbot-btn">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <div class="chatbot-container" id="chatbot-container">
+        <div class="chat-header">
+            <h3><i class="fas fa-robot"></i> PWD Assistant</h3>
+            <button id="close-chatbot-btn">×</button>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <!-- Messages will be inserted here by JavaScript -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chat-input-field" placeholder="Ask about reservations, certificates, benefits..." autocomplete="off">
+            <button type="button" id="send-message-btn">Send</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <a href="index.html" class="logo" style="color: var(--bg-light);">
+                    <i class="fas fa-wheelchair-move"></i>
+                    PWD Assistant
+                </a>
+                <p>&copy; 2025 PWD Assistant. Empowering Digital Inclusion.</p>
+                <a href="about.html" class="btn btn-secondary" style="color: var(--primary-blue); border-color: var(--primary-blue);">Project Details</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Comprehensive PwD Knowledge Base
+        const knowledgeBase = {
+            reservationpolicy: {
+                title: 'Employment Reservation Policy',
+                content: '4% Reservation in Government Jobs as per The Rights of Persons with Disabilities Act, 2016\n\n1% for blindness and low vision\n1% for hearing impairment\n1% for locomotor disability\n1% for autism, intellectual disability, specific learning disability, and mental illness\n\nEligibility: Persons with benchmark disabilities (40% and above)\nCoverage: All government establishments, public sector units\nLegal Basis: RPwD Act, 2016 - Section 34',
+                category: 'employment',
+                source: 'RPwD Act, 2016 - Section 34',
+                pdfreference: 'RPwD Act 2016 Summary.pdf'
+            },
+            agerelaxation: {
+                title: 'Age Relaxation in Government Jobs',
+                content: '10 years age relaxation in upper age limit for PwD candidates.\n\nAdditional benefits:\nSC/ST + PwD: 15 years total relaxation (5+10)\nOBC + PwD: 13 years total relaxation (3+10)\n\nNo limit on number of attempts for civil services exams\nCarry-forward of unfilled vacancies for 3 years\nApplication: Automatic for PwD candidates in application forms',
+                category: 'employment',
+                source: 'DoPT Office Memorandum',
+                pdfreference: 'DoPT Age Relaxation'
+            },
+            educationalbenefits: {
+                title: 'Educational Concessions & Scholarships',
+                content: 'Pre-Matric and Post-Matric Scholarships\nFree coaching for competitive exams\nScribe facility with extra time in exams\n5% reservation in educational institutions\nFinancial aid for assistive devices\n\nScholarship Types:\n- Pre-Matric Scholarship (Classes 1-10)\n- Post-Matric Scholarship (Classes 11 to Post-Graduation)\n- Top-class Education Scheme (Professional courses)',
+                category: 'education',
+                source: 'Ministry of Education Guidelines',
+                pdfreference: 'Educational benefits fully documented'
+            },
+            healthcarebenefits: {
+                title: 'Healthcare Medical Benefits',
+                content: 'Health Insurance Schemes for PwD\nNiramaya Health Insurance: Premium ₹250-500 annually\nCoverage: Up to ₹1 lakh for hospitalization\nPre-existing conditions: Covered from day 1\n\nOther Schemes:\n- Ayushman Bharat (PM-JAY)\n- State health schemes\n- Free surgeries in government hospitals\n\nAssistive Devices:\n- Available through ALIMCO at subsidized rates\n- Free distribution for BPL families',
+                category: 'healthcare',
+                source: 'National Trust & Ministry of Health',
+                pdfreference: 'Healthcare benefits fully documented'
+            },
+            financialassistance: {
+                title: 'Disability Pension Schemes',
+                content: 'Indira Gandhi National Disability Pension Scheme (IGNDPS)\n\nBenefits:\n₹300 per month from central government\n₹300 per month state contribution in most states\nTotal ₹600 per month in most states\n\nEligibility:\n- Age 18-79 years\n- 80% disability\n- Economic status: BPL family\n- Not receiving other similar pension\n\nCoverage: 26 lakh beneficiaries nationwide',
+                category: 'financial',
+                source: 'National Social Assistance Programme',
+                pdfreference: 'Pension scheme details documented'
+            },
+            disabilitycertificate: {
+                title: 'Disability Certificate Process',
+                content: 'Online Application through UDID Portal\n\nStep-by-Step Process:\n1. Register at UDID Portal (can be done offline at CSC centers)\n2. Fill application with personal and disability details\n3. Book appointment at designated medical authority\n4. Medical examination and assessment\n5. Certificate issuance (Usually within 30 days)\n\nRequired Documents:\n- Aadhaar Card\n- Recent passport photo\n- Address proof\n- Existing medical reports if any\n\nValidity: Permanent unless condition changes',
+                category: 'certification',
+                source: 'UDID Portal Guidelines',
+                pdfreference: 'Process documented locally'
+            },
+            legalrights: {
+                title: 'Legal Rights & Protections',
+                content: 'Key Legal Rights under RPwD Act 2016:\n\nFundamental Rights:\n- Non-discrimination in employment, education, healthcare\n- Accessibility standards for public infrastructure\n\nGrievance Redressal:\n- Disability Commissioners at state and central level\n- Special Courts for disability rights violations\n- Time-bound disposal of complaints\n\nAccessibility Requirements:\n- Ramps in public buildings\n- Accessible toilets\n- Sign language interpreters\n- Braille signage',
+                category: 'legal',
+                source: 'RPwD Act, 2016',
+                pdfreference: 'Legal rights comprehensively documented'
+            },
+            railwayconcessions: {
+                title: 'Indian Railway Concessions',
+                content: 'Concession in train fares for PwD\n\nConcession Rates:\n75% in First & Second Class\n50% in Sleeper and Chair Car\nCompanion: 75% concession for escort of mentally disabled patients\nBlind persons: Free travel in 2nd class\n\nRequired Documents:\n- Disability certificate\n- Photo ID (Aadhaar/Driving License)\n- Recent passport photograph\n\nValidity: For lifetime',
+                category: 'travel',
+                source: 'Indian Railways Commercial Circular',
+                pdfreference: 'Railway concession rules documented'
+            }
+        };
+
+        // Keyword mapping
+        const keywordMapping = {
+            'job': 'reservationpolicy',
+            'employment': 'reservationpolicy',
+            'reservation': 'reservationpolicy',
+            'age': 'agerelaxation',
+            'relax': 'agerelaxation',
+            'education': 'educationalbenefits',
+            'scholarship': 'educationalbenefits',
+            'health': 'healthcarebenefits',
+            'medical': 'healthcarebenefits',
+            'pension': 'financialassistance',
+            'financial': 'financialassistance',
+            'certificate': 'disabilitycertificate',
+            'udid': 'disabilitycertificate',
+            'legal': 'legalrights',
+            'rights': 'legalrights',
+            'train': 'railwayconcessions',
+            'railway': 'railwayconcessions'
+        };
+
+        // Chatbot functionality
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const openChatbotBtn = document.getElementById('open-chatbot-btn');
+        const closeChatbotBtn = document.getElementById('close-chatbot-btn');
+        const chatBody = document.getElementById('chat-body');
+        const chatInput = document.getElementById('chat-input-field');
+        const sendMessageBtn = document.getElementById('send-message-btn');
+
+        openChatbotBtn.addEventListener('click', () => {
+            chatbotContainer.classList.add('active');
+            if (chatBody.children.length === 0) {
+                showWelcomeMessage();
+            }
+        });
+
+        closeChatbotBtn.addEventListener('click', () => {
+            chatbotContainer.classList.remove('active');
+        });
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            chatInput.value = '';
+
+            setTimeout(() => {
+                const response = generateResponse(message);
+                displayFormattedResponse(response);
+                addQuickActions();
+            }, 1000);
+        }
+
+        sendMessageBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function showWelcomeMessage() {
+            const welcomeMessage = 'Welcome to PWD Assistant! I provide comprehensive information about Persons with Disabilities rights and benefits in India. I can help you with:\n\n• Employment reservations\n• Age relaxation\n• Education benefits\n• Healthcare schemes\n• Financial assistance\n• Disability certification\n• Legal rights\n• Travel concessions\n\nAsk me anything!';
+            addMessage(welcomeMessage, 'bot');
+            addQuickActions();
+        }
+
+        function addMessage(content, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}-message`;
+
+            let formattedContent = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>')
+                .replace(/• (.*?)(?=<br>|$)/g, '<div style="margin: 5px 0; padding-left: 15px;">• $1</div>');
+
+            messageDiv.innerHTML = formattedContent;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function generateResponse(message) {
+            const lowerMessage = message.toLowerCase();
+
+            for (const [keyword, responseKey] of Object.entries(keywordMapping)) {
+                if (lowerMessage.includes(keyword)) {
+                    return knowledgeBase[responseKey];
+                }
+            }
+
+            return {
+                title: 'How can I help you?',
+                content: 'I provide comprehensive PwD information. Ask about employment, education, healthcare, finance, certification, legal rights, or travel!',
+                category: 'general',
+                source: 'Government of India',
+                pdfreference: 'PwD Documentation'
+            };
+        }
+
+        function displayFormattedResponse(responseData) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message bot-message';
+
+            let content = `
+                <div style="margin-bottom: 10px;">
+                    <strong>${responseData.title}</strong>
+                    <span class="category-tag">${responseData.category}</span>
+                </div>
+                <div>${formatContent(responseData.content)}</div>
+                <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                    <strong>Source:</strong> ${responseData.source}<br>
+                    <strong>Reference:</strong> ${responseData.pdfreference}
+                </div>
+            `;
+
+            messageDiv.innerHTML = content;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function formatContent(content) {
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>')
+                .replace(/• (.*?)(?=<br>|$)/g, '<div style="margin: 8px 0; padding-left: 15px;">• $1</div>');
+        }
+
+        function addQuickActions() {
+            const quickActionsDiv = document.createElement('div');
+            quickActionsDiv.className = 'quick-actions';
+
+            const actions = ['Employment', 'Education', 'Healthcare', 'Finance', 'Certificate', 'Legal', 'Travel'];
+
+            actions.forEach(action => {
+                const button = document.createElement('button');
+                button.className = 'quick-action-btn';
+                button.textContent = action;
+                button.onclick = () => {
+                    chatInput.value = action;
+                    sendMessage();
+                };
+                quickActionsDiv.appendChild(button);
+            });
+
+            chatBody.appendChild(quickActionsDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function searchResources() {
+            const domain = document.getElementById('domain').value;
+            const resultDiv = document.getElementById('planResult');
+
+            if (!domain) {
+                resultDiv.innerHTML = '<div class="card" style="text-align: center; color: #c62828; background-color: #ffebee;"><strong>Please select a category to explore benefits.</strong></div>';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            let resources = [];
+            if (domain === 'employment') {
+                resources = [
+                    { name: '4% Government Job Reservation', type: 'Employment', details: 'Reservation in all government establishments as per RPwD Act 2016.' },
+                    { name: 'Age Relaxation - 10 years', type: 'Employment', details: '10 years age relaxation in upper age limit for all government jobs.' }
+                ];
+            } else if (domain === 'education') {
+                resources = [
+                    { name: 'Pre-Matric Scholarship', type: 'Education', details: 'For students from classes 1 to 10. Covers maintenance allowance and book grants.' },
+                    { name: 'Post-Matric Scholarship', type: 'Education', details: 'For students from class 11 to post-graduation.' }
+                ];
+            } else if (domain === 'healthcare') {
+                resources = [
+                    { name: 'Niramaya Health Insurance', type: 'Healthcare', details: 'Health insurance with premium of ₹250-500 annually. Coverage up to ₹1 lakh.' },
+                    { name: 'Assistive Devices through ALIMCO', type: 'Healthcare', details: 'Subsidized artificial limbs, hearing aids, wheelchairs, and Braille equipment.' }
+                ];
+            } else if (domain === 'financial') {
+                resources = [
+                    { name: 'Indira Gandhi National Disability Pension', type: 'Financial', details: '₹300 per month from central government plus state contribution.' },
+                    { name: 'Income Tax Benefits Section 80U', type: 'Financial', details: 'Deduction of ₹75,000 for persons with disability 40%-80%.' }
+                ];
+            } else if (domain === 'certification') {
+                resources = [
+                    { name: 'UDID Online Portal', type: 'Certification', details: 'Online application for disability certificate through UDID portal.' },
+                    { name: 'Common Service Centers', type: 'Certification', details: 'Offline application support available at CSCs across India.' }
+                ];
+            } else if (domain === 'legal') {
+                resources = [
+                    { name: 'RPwD Act 2016 Rights', type: 'Legal', details: 'Comprehensive rights including non-discrimination and accessibility standards.' },
+                    { name: 'Grievance Redressal Mechanism', type: 'Legal', details: 'Disability Commissioners at state and central levels.' }
+                ];
+            } else if (domain === 'travel') {
+                resources = [
+                    { name: 'Indian Railway Concessions', type: 'Travel', details: '75% concession in First/Second Class, 50% in Sleeper/Chair Car.' },
+                    { name: 'Free Travel for Blind Persons', type: 'Travel', details: 'Free travel in 2nd class with valid disability certificate.' }
+                ];
+            }
+
+            const resultsHtml = `
+                <div class="result-header fade-in-up">
+                    <h2>Available Resources</h2>
+                    <p>Comprehensive information and benefits available</p>
+                </div>
+                <div class="resource-list">
+                    ${resources.map((res, index) => `
+                        <div class="card fade-in-up" style="animation-delay: ${index * 0.2}s">
+                            <div class="resource-meta">
+                                <h3>${res.name}</h3>
+                                <span class="meta-tag">${res.type}</span>
+                            </div>
+                            <p>${res.details}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="text-align: center; margin-top: 40px; class='fade-in-up'">
+                    <button class="btn btn-primary" onclick="document.getElementById('open-chatbot-btn').click()">
+                        <i class="fas fa-robot"></i> Get Personalized Assistance
+                    </button>
+                </div>
+            `;
+
+            resultDiv.innerHTML = resultsHtml;
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Store return URL function
+        function storeReturnUrl() {
+            sessionStorage.setItem('returnUrl', window.location.href);
+        }
+
+        // Logout function
+        function logout() {
+            fetch('/api/logout', {
+                method: 'POST'
+            }).then(() => {
+                window.location.href = '/login';
+            });
+        }
+    </script>
+</body>
+</html>

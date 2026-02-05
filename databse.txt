@@ -1,0 +1,27 @@
+mysql> CREATE DATABASE IF NOT EXISTS pwd_assistant;
+Query OK, 1 row affected (0.114 sec)
+
+mysql> USE pwd_assistant;
+Database changed
+mysql> CREATE TABLE users (
+    ->     id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     full_name VARCHAR(100) NOT NULL,
+    ->     username VARCHAR(50) UNIQUE NOT NULL,
+    ->     email VARCHAR(100) UNIQUE NOT NULL,
+    ->     password VARCHAR(200) NOT NULL,
+    ->     user_type ENUM('individual', 'ngo') DEFAULT 'individual',
+    ->     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    -> );
+Query OK, 0 rows affected (0.306 sec)
+
+mysql> CREATE TABLE ngo_students (
+    ->     id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     ngo_id INT,
+    ->     name VARCHAR(100) NOT NULL,
+    ->     age INT,
+    ->     disability_type VARCHAR(100),
+    ->     certificate_file VARCHAR(255),
+    ->     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ->     FOREIGN KEY (ngo_id) REFERENCES users(id) ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.290 sec)
